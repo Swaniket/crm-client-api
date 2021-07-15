@@ -1,4 +1,6 @@
+require("dotenv").config();
 const express = require("express");
+const mongoose = require("mongoose");
 const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
@@ -15,6 +17,27 @@ app.use(express.json());
 app.use(helmet());
 app.use(cors());
 app.use(morgan("tiny"));
+
+// MongoDB Connection Setup
+mongoose.connect(process.env.MONGO_URL, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useFindAndModify: false,
+  useCreateIndex: true,
+});
+
+// This code runs only on development
+if (process.env.NODE_ENV !== "production") {
+  const mongoDB = mongoose.connection 
+
+  mongoDB.on("open", () => {
+    console.log("MongoDB is Connected");
+  });
+
+  mongoDB.on("error", (error) => {
+    console.log(error);
+  });
+}
 
 // Load Custom Routers
 app.use("/v1/user", userRouter);
