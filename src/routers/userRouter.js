@@ -5,6 +5,7 @@ const {
   comparePassword,
 } = require("../helpers/bcryptHelper");
 const { json } = require("express");
+const { createAccessJWT, createRefreshJWT } = require("../helpers/jwtHelper");
 const router = express.Router();
 
 // Create user account
@@ -40,16 +41,22 @@ router.post("/login", async (req, res) => {
 
   // Get the user details from db
   const user = await getUserByEmail(email);
-
   const passFromDb = user && user._id ? user.password : null;
 
   if (!passFromDb)
     return res.send({ status: "error", message: "Invalid credentials" });
 
   const result = await comparePassword(password, passFromDb);
-  console.log(result);
 
-  res.send({ status: "success", message: "Login Successful!" });
+  if (!result) {
+    return res.send({ status: "error", message: "Invalid credentials" });
+  }
+
+  const accessJWT = await createAccessJWT(user.email)
+  const refreshJWT = await createRefreshJWT(user.email)
+
+
+  res.send({ status: "success", message: "Login Successful!", accessJWT, refreshJWT });
 });
 
 module.exports = router;
