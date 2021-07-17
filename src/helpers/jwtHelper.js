@@ -22,6 +22,14 @@ const createRefreshJWT = async (email, _id) => {
     await storeUserRefreshJWT(_id, refreshJWT);
     return Promise.resolve(refreshJWT);
   } catch (e) {
+    return Promise.resolve(e);
+  }
+};
+
+const verifyAccessJWT = (userJWT) => {
+  try {
+    return Promise.resolve(jwt.verify(userJWT, process.env.JWT_ACCESS_SECRET));
+  } catch (e) {
     return Promise.reject(e);
   }
 };
@@ -29,4 +37,5 @@ const createRefreshJWT = async (email, _id) => {
 module.exports = {
   createAccessJWT,
   createRefreshJWT,
+  verifyAccessJWT,
 };
