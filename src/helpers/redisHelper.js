@@ -1,8 +1,8 @@
 const redis = require("redis");
 const client = redis.createClient(process.env.REDIS_URL);
 
-client.on("error", function(error) {
-    console.error(error);
+client.on("error", function (error) {
+  console.error(error);
 });
 
 const setJWT = (key, value) => {
@@ -31,7 +31,16 @@ const getJWT = (key) => {
   });
 };
 
+const deleteJWT = (key) => {
+  try {
+    client.del(key);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 module.exports = {
   setJWT,
   getJWT,
+  deleteJWT,
 };

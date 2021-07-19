@@ -7,6 +7,7 @@ const morgan = require("morgan");
 
 const userRouter = require("./src/routers/userRouter");
 const ticketRouter = require("./src/routers/ticketRouter");
+const tokenRouter = require("./src/routers/tokenRouter")
 const handleError = require("./src/utils/errorHandler");
 
 const app = express();
@@ -42,6 +43,7 @@ if (process.env.NODE_ENV !== "production") {
 // Load Custom Routers
 app.use("/v1/user", userRouter);
 app.use("/v1/ticket", ticketRouter);
+app.use("/v1/tokens", tokenRouter)
 
 // Error Handler & 404
 app.use((req, res, next) => {

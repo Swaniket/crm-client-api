@@ -1,5 +1,5 @@
 const { verifyAccessJWT } = require("../helpers/jwtHelper");
-const { getJWT } = require("../helpers/redisHelper");
+const { getJWT, deleteJWT } = require("../helpers/redisHelper");
 
 const userAuth = async (req, res, next) => {
   const token = req.header("Authorization").replace("Bearer ", "");
@@ -12,11 +12,13 @@ const userAuth = async (req, res, next) => {
     if (!userId) {
       return res.status(403).send({ message: "Forbidded" });
     }
-    req.userId = userId
+    req.userId = userId;
     return next();
   }
 
-  res.status(403).send({message: "Forbidded"})
+  deleteJWT(token);
+
+  res.status(403).send({ message: "Forbidded" });
 };
 
 module.exports = {
