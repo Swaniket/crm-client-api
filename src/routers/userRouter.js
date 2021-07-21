@@ -3,8 +3,13 @@ const {
   insertUser,
   getUserByEmail,
   getUserById,
+  updatePassword,
 } = require("../models/user/UserModel");
-const { setPasswordResetPin } = require("../models/resetPin/ResetPinModel");
+const {
+  setPasswordResetPin,
+  getPasswordResetPin,
+  deletePin,
+} = require("../models/resetPin/ResetPinModel");
 const {
   getHashedPassword,
   comparePassword,
@@ -84,25 +89,61 @@ router.post("/reset-password", async (req, res) => {
 
   if (user && user._id) {
     const setPin = await setPasswordResetPin(email);
-    const result = emailProcessor(email, setPin.pin);
-
-    if (result && result.messageId) {
-      return res.send({
-        status: "success",
-        message: "If user exist, an email will be send with password rest PIN",
-      });
-    }
+    await emailProcessor({
+      email,
+      pin: setPin.pin,
+      type: "request-new-password",
+    });
 
     return res.send({
-      status: "error",
-      message:
-        "Unable to process your request at the moment, please try again later",
+      status: "success",
+      message: "If user exist, an email will be send with password rest PIN",
     });
   }
 
   res.send({
     status: "error",
     message: "If user exist, an email will be send with password rest PIN",
+  });
+});
+
+// Reset Password-2: PIN Validate & Update in DB
+router.patch("/reset-password", async (req, res) => {
+  const { email, pin, newPassword } = req.body;
+  const getPin = await getPasswordResetPin(email, pin);
+
+  // Validate Pin
+  if (getPin._id) {
+    const dbDate = getPin.addedAt;
+    const expiresIn = 1;
+
+    let expDate = dbDate.setDate(dbDate.getDate() + expiresIn);
+    const today = new Date();
+
+    if (today > expDate) {
+      return res.send({ status: "error", message: "Invalid or Expired PIN" });
+    }
+
+    // Encrypt the new password
+    const hashedPassword = await getHashedPassword(newPassword);
+    const user = await updatePassword(email, hashedPassword);
+
+    if (user._id) {
+      // Send email notification
+      await emailProcessor({ email, type: "password-update-success" });
+
+      // Delete the PIN from the DB
+      deletePin(email, pin);
+
+      return res.send({
+        status: "success",
+        message: "Password has been updated!",
+      });
+    }
+  }
+  res.send({
+    status: "error",
+    message: "Unable to update the password, please try again later",
   });
 });
 

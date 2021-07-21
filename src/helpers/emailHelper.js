@@ -22,18 +22,40 @@ const sentEmail = (info) => {
   });
 };
 
-const emailProcessor = (email, pin) => {
-  const info = {
-    from: '"CRM Ticketing System" <augustine.conroy42@ethereal.email>',
-    to: email,
-    subject: "Password Reset ✔",
-    text: `Here is your password reset PIN: ${pin}`,
-    html: `<b>Hello,</b>
-    Here is your password reset PIN: <b>${pin}</b>
-    `,
-  };
+const emailProcessor = ({email, pin, type}) => {
+  let info = ''
+  switch (type) {
+    case "request-new-password":
+      info = {
+        from: '"CRM Ticketing System" <augustine.conroy42@ethereal.email>',
+        to: email,
+        subject: "Password Reset ✔",
+        text: `Here is your password reset PIN: ${pin}. This PIN will expire in 1 Day`,
+        html: `<b>Hello,</b>
+        Here is your password reset PIN: <b>${pin}</b>. This PIN will expire in 1 Day
+        `,
+      };
 
-  sentEmail(info);
+      sentEmail(info);
+      break;
+
+    case "password-update-success":
+      info = {
+        from: '"CRM Ticketing System" <augustine.conroy42@ethereal.email>',
+        to: email,
+        subject: "Password Successfully Changed ✔",
+        text: "Hello, Your password has been updated.",
+        html: `<b>Hello,</b>
+        Your password has been updated.
+        `,
+      };
+
+      sentEmail(info);
+      break;
+
+    default:
+      break;
+  }
 };
 
 module.exports = {
