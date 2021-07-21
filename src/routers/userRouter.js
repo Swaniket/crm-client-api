@@ -12,6 +12,7 @@ const {
 const { json } = require("express");
 const { createAccessJWT, createRefreshJWT } = require("../helpers/jwtHelper");
 const { userAuth } = require("../middlewares/auth");
+const { emailProcessor } = require("../helpers/emailHelper");
 const router = express.Router();
 
 // Get user profile
@@ -83,7 +84,20 @@ router.post("/reset-password", async (req, res) => {
 
   if (user && user._id) {
     const setPin = await setPasswordResetPin(email);
-    return res.send(setPin);
+    const result = emailProcessor(email, setPin.pin);
+
+    if (result && result.messageId) {
+      return res.send({
+        status: "success",
+        message: "If user exist, an email will be send with password rest PIN",
+      });
+    }
+
+    return res.send({
+      status: "error",
+      message:
+        "Unable to process your request at the moment, please try again later",
+    });
   }
 
   res.send({
