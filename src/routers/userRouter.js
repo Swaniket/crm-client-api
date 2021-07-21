@@ -4,6 +4,7 @@ const {
   getUserByEmail,
   getUserById,
 } = require("../models/user/UserModel");
+const { setPasswordResetPin } = require("../models/resetPin/ResetPinModel");
 const {
   getHashedPassword,
   comparePassword,
@@ -72,6 +73,22 @@ router.post("/login", async (req, res) => {
     message: "Login Successful!",
     accessJWT,
     refreshJWT,
+  });
+});
+
+// Reset Password-1: Email verify & PIN generation
+router.post("/reset-password", async (req, res) => {
+  const { email } = req.body;
+  const user = await getUserByEmail(email);
+
+  if (user && user._id) {
+    const setPin = await setPasswordResetPin(email);
+    return res.send(setPin);
+  }
+
+  res.send({
+    status: "error",
+    message: "If user exist, an email will be send with password rest PIN",
   });
 });
 
