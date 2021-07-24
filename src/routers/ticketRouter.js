@@ -5,6 +5,7 @@ const {
   getTicketById,
   updateClientReply,
   closeTicket,
+  deleteTicket,
 } = require("../models/ticket/TicketModel");
 const { userAuth } = require("../middlewares/auth");
 const router = express.Router();
@@ -139,4 +140,25 @@ router.patch("/close-ticket/:_id", userAuth, async (req, res) => {
     });
   }
 });
+
+// Delete Ticket
+router.delete("/:_id", userAuth, async (req, res) => {
+  try {
+    const { _id } = req.params;
+    const clientId = req.userId;
+
+    await deleteTicket({ _id, clientId });
+
+    return res.send({
+      status: "success",
+      message: "Ticket has been deleted!",
+    });
+  } catch (e) {
+    res.send({
+      status: "error",
+      message: e.message,
+    });
+  }
+});
+
 module.exports = router;
