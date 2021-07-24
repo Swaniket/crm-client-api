@@ -1,5 +1,11 @@
 const express = require("express");
-const { insertTicket, getTickets, getTicketById } = require("../models/ticket/TicketModel");
+const {
+  insertTicket,
+  getTickets,
+  getTicketById,
+  updateClientReply,
+  closeTicket,
+} = require("../models/ticket/TicketModel");
 const { userAuth } = require("../middlewares/auth");
 const router = express.Router();
 
@@ -64,7 +70,7 @@ router.get("/", userAuth, async (req, res) => {
 // Get a ticket details by ticketId
 router.get("/:_id", userAuth, async (req, res) => {
   try {
-    const {_id} = req.params
+    const { _id } = req.params;
     const clientId = req.userId;
     const result = await getTicketById(_id, clientId);
 
@@ -80,4 +86,57 @@ router.get("/:_id", userAuth, async (req, res) => {
   }
 });
 
+// Reply message update
+router.put("/:_id", userAuth, async (req, res) => {
+  try {
+    const { message, sender } = req.body;
+    const { _id } = req.params;
+    const clientId = req.userId;
+    const result = await updateClientReply({ _id, clientId, message, sender });
+
+    if (result._id) {
+      return res.send({
+        status: "success",
+        message: "Message Updated!",
+      });
+    }
+
+    res.send({
+      status: "error",
+      message: "Unable to update your message, please try again later.",
+    });
+  } catch (e) {
+    res.send({
+      status: "error",
+      message: e.message,
+    });
+  }
+});
+
+// Close Ticket
+router.patch("/close-ticket/:_id", userAuth, async (req, res) => {
+  try {
+    const { _id } = req.params;
+    const clientId = req.userId;
+
+    const result = await closeTicket({ _id, clientId });
+
+    if (result._id) {
+      return res.send({
+        status: "success",
+        message: "Ticket Closed!",
+      });
+    }
+
+    res.send({
+      status: "error",
+      message: "Unable to update your message, please try again later.",
+    });
+  } catch (e) {
+    res.send({
+      status: "error",
+      message: e.message,
+    });
+  }
+});
 module.exports = router;

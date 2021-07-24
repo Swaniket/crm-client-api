@@ -37,8 +37,49 @@ const getTicketById = (_id, clientId) => {
   });
 };
 
+const updateClientReply = ({ _id, clientId, message, sender }) => {
+  return new Promise((resolve, reject) => {
+    try {
+      TicketSchema.findOneAndUpdate(
+        { _id, clientId },
+        {
+          status: "Pending Operator Response",
+          $push: {
+            conversation: { message, sender },
+          },
+        },
+        { new: true }
+      )
+        .then((data) => resolve(data))
+        .catch((error) => reject(error));
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+const closeTicket = ({ _id, clientId }) => {
+  return new Promise((resolve, reject) => {
+    try {
+      TicketSchema.findOneAndUpdate(
+        { _id },
+        {
+          status: "Closed",
+        },
+        { new: true }
+      )
+        .then((data) => resolve(data))
+        .catch((error) => reject(error));
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 module.exports = {
   insertTicket,
   getTickets,
   getTicketById,
+  updateClientReply,
+  closeTicket,
 };
