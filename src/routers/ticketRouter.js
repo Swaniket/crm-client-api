@@ -8,10 +8,14 @@ const {
   deleteTicket,
 } = require("../models/ticket/TicketModel");
 const { userAuth } = require("../middlewares/auth");
+const {
+  createNewTicketValidation,
+  replyMessageValidation,
+} = require("../middlewares/validation");
 const router = express.Router();
 
 // Create a new ticket
-router.post("/", userAuth, async (req, res) => {
+router.post("/", createNewTicketValidation, userAuth, async (req, res) => {
   try {
     const { subject, sender, message } = req.body;
 
@@ -88,7 +92,7 @@ router.get("/:_id", userAuth, async (req, res) => {
 });
 
 // Reply message update
-router.put("/:_id", userAuth, async (req, res) => {
+router.put("/:_id", replyMessageValidation, userAuth, async (req, res) => {
   try {
     const { message, sender } = req.body;
     const { _id } = req.params;
