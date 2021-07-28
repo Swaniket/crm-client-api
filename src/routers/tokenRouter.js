@@ -15,7 +15,7 @@ router.get("/", async (req, res, next) => {
     if (userProfile._id) {
       // Check if it's not expired
       let tokenWillExpire = userProfile.refreshJWT.addedAt;
-      const dBrefreshToken = userProf.refreshJWT.token;
+      const dBrefreshToken = userProfile.refreshJWT.token;
 
       tokenWillExpire = tokenWillExpire.setDate(
         tokenWillExpire.getDate() +
@@ -24,7 +24,7 @@ router.get("/", async (req, res, next) => {
       const today = new Date();
 
       // Expired
-      if (dBrefreshToken !== authorization && tokenWillExpire < today) {
+      if (dBrefreshToken !== token && tokenWillExpire < today) {
         return res.status(403).send({ message: "Forbidden" });
       }
 

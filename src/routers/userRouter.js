@@ -17,7 +17,6 @@ const {
 } = require("../helpers/bcryptHelper");
 const { emailProcessor } = require("../helpers/emailHelper");
 const { deleteJWT } = require("../helpers/redisHelper");
-const { json } = require("express");
 const { createAccessJWT, createRefreshJWT } = require("../helpers/jwtHelper");
 const { userAuth } = require("../middlewares/auth");
 const {
@@ -31,7 +30,15 @@ const router = express.Router();
 router.get("/", userAuth, async (req, res) => {
   const _id = req.userId;
   const userProfile = await getUserById(_id);
-  res.send({ user: userProfile });
+
+  const { name, email } = userProfile;
+  res.send({
+    user: {
+      _id,
+      name,
+      email,
+    },
+  });
 });
 
 // Create user account
