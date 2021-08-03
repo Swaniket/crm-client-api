@@ -29,11 +29,9 @@ router.get("/", async (req, res, next) => {
       }
 
       const accessJWT = await createAccessJWT(
-        decoded.email.toString(),
+        decoded.email,
         userProfile._id.toString()
       );
-
-      // Delete old token from Redis db
 
       return res.send({ status: "success", accessJWT });
     }
