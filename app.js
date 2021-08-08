@@ -7,7 +7,7 @@ const morgan = require("morgan");
 
 const userRouter = require("./src/routers/userRouter");
 const ticketRouter = require("./src/routers/ticketRouter");
-const tokenRouter = require("./src/routers/tokenRouter")
+const tokenRouter = require("./src/routers/tokenRouter");
 const handleError = require("./src/utils/errorHandler");
 
 const app = express();
@@ -29,7 +29,7 @@ mongoose.connect(process.env.MONGO_URL, {
 
 // This code runs only on development
 if (process.env.NODE_ENV !== "production") {
-  const mongoDB = mongoose.connection 
+  const mongoDB = mongoose.connection;
 
   mongoDB.on("open", () => {
     console.log("MongoDB is Connected");
@@ -43,7 +43,7 @@ if (process.env.NODE_ENV !== "production") {
 // Load Custom Routers
 app.use("/v1/user", userRouter);
 app.use("/v1/ticket", ticketRouter);
-app.use("/v1/tokens", tokenRouter)
+app.use("/v1/tokens", tokenRouter);
 
 // Error Handler & 404
 app.use((req, res, next) => {
