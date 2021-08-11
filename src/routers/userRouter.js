@@ -22,6 +22,7 @@ const { userAuth } = require("../middlewares/auth");
 const {
   resetPassReqValidation,
   updatePassReqValidation,
+  newUserValidation,
 } = require("../middlewares/validation");
 
 const router = express.Router();
@@ -42,7 +43,7 @@ router.get("/", userAuth, async (req, res) => {
 });
 
 // Create user account
-router.post("/", async (req, res) => {
+router.post("/", newUserValidation, async (req, res) => {
   const { name, company, address, phone, email, password } = req.body;
   try {
     const hashedPassword = await getHashedPassword(password);
@@ -57,7 +58,7 @@ router.post("/", async (req, res) => {
     };
 
     const result = await insertUser(user);
-    console.log(result);
+    // Send Confirmation Email
     res.json({ status: "success", message: "New User Created!", result });
   } catch (error) {
     let message =
