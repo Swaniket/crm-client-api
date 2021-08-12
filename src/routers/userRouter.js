@@ -26,6 +26,7 @@ const {
 } = require("../middlewares/validation");
 
 const router = express.Router();
+const verificationURL = "http://localhost:3000/verification/";
 
 // Get user profile
 router.get("/", userAuth, async (req, res) => {
@@ -58,7 +59,14 @@ router.post("/", newUserValidation, async (req, res) => {
     };
 
     const result = await insertUser(user);
+
     // Send Confirmation Email
+    await emailProcessor({
+      email,
+      type: "new-user-confirmation",
+      verificationLink: verificationURL + result._id,
+    });
+
     res.json({ status: "success", message: "New User Created!", result });
   } catch (error) {
     let message =
