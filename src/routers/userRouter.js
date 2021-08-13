@@ -5,6 +5,7 @@ const {
   getUserById,
   updatePassword,
   storeUserRefreshJWT,
+  verifyUser,
 } = require("../models/user/UserModel");
 const {
   setPasswordResetPin,
@@ -43,6 +44,29 @@ router.get("/", userAuth, async (req, res) => {
   });
 });
 
+// Verify User after new User account reation
+router.patch("/verify", async (req, res) => {
+  try {
+    const { _id, email } = req.body;
+
+    const result = await verifyUser(_id, email);
+    if (result && result.id) {
+      return res.send({
+        status: "success",
+        message: "Account Verified Successfully!",
+      });
+    }
+
+    return res.send({
+      status: "error",
+      message: "Invalid Request!",
+    });
+  } catch (e) {
+    console.log(e);
+    return res.send({ status: "error", message: "Invalid Request!" });
+  }
+});
+
 // Create user account
 router.post("/", newUserValidation, async (req, res) => {
   const { name, company, address, phone, email, password } = req.body;
@@ -64,7 +88,7 @@ router.post("/", newUserValidation, async (req, res) => {
     await emailProcessor({
       email,
       type: "new-user-confirmation",
-      verificationLink: verificationURL + result._id,
+      verificationLink: verificationURL + result._id + "/" + email,
     });
 
     res.json({ status: "success", message: "New User Created!", result });
@@ -87,6 +111,13 @@ router.post("/login", async (req, res) => {
 
   // Get the user details from db
   const user = await getUserByEmail(email);
+  if (!user.isVerified) {
+    return res.send({
+      status: "error",
+      message:
+        "Your account is not verified. Please check your email and verify your account before trying again.",
+    });
+  }
   const passFromDb = user && user._id ? user.password : null;
 
   if (!passFromDb)
