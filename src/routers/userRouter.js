@@ -152,15 +152,10 @@ router.post("/reset-password", resetPassReqValidation, async (req, res) => {
       pin: setPin.pin,
       type: "request-new-password",
     });
-
-    return res.send({
-      status: "success",
-      message: "If user exist, an email will be send with password rest PIN",
-    });
   }
 
   res.send({
-    status: "error",
+    status: "success",
     message: "If user exist, an email will be send with password rest PIN",
   });
 });
@@ -171,7 +166,7 @@ router.patch("/reset-password", updatePassReqValidation, async (req, res) => {
   const getPin = await getPasswordResetPin(email, pin);
 
   // Validate Pin
-  if (getPin._id) {
+  if (getPin?._id) {
     const dbDate = getPin.addedAt;
     const expiresIn = 1;
 
